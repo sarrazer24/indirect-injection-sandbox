@@ -13,6 +13,7 @@ src/injection_sandbox/agent/schemas.py
 src/injection_sandbox/evaluation/metrics.py
 src/injection_sandbox/evaluation/reporting.py
 src/injection_sandbox/evaluation/runner.py
+src/injection_sandbox/security/__init__.py
 src/injection_sandbox/security/input_filter.py
 src/injection_sandbox/security/output_filter.py
 src/injection_sandbox/security/policy.py
