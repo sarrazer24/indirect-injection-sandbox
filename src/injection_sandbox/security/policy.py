@@ -1,10 +1,6 @@
 from dataclasses import dataclass
 
-
-@dataclass(frozen=True)
-class ToolRequest:
-    name: str
-    arguments: dict[str, object]
+from injection_sandbox.agent.schemas import ToolRequest
 
 
 @dataclass(frozen=True)
@@ -19,14 +15,26 @@ ALLOWED_TOOLS = {
     "draft_email",
 }
 
+EXPECTED_ARGUMENTS = {
+    "read_document": {"document_id"},
+    "read_web_fixture": {"fixture_id"},
+    "draft_email": {"recipient", "body"},
+}
+
 
 def authorize_tool(request: ToolRequest) -> PolicyDecision:
     """Apply deterministic authorization before any tool executes."""
 
     if request.name not in ALLOWED_TOOLS:
+        return PolicyDecision(False, "Tool is not allowlisted.")
+
+    expected_arguments = EXPECTED_ARGUMENTS[request.name]
+    unexpected_arguments = set(request.arguments) - expected_arguments
+
+    if unexpected_arguments:
         return PolicyDecision(
             allowed=False,
-            reason="Tool is not allowlisted.",
+            reason="Unexpected arguments are not permitted.",
         )
 
     if request.name == "draft_email":
@@ -39,8 +47,10 @@ def authorize_tool(request: ToolRequest) -> PolicyDecision:
         if not isinstance(body, str) or not body.strip():
             return PolicyDecision(False, "A non-empty email body is required.")
 
-        # Drafting is permitted; sending is not implemented.
-        return PolicyDecision(True, "Email draft permitted; sending unavailable.")
+        return PolicyDecision(
+            True,
+            "Email draft permitted; sending unavailable.",
+        )
 
     if request.name == "read_document":
         document_id = request.arguments.get("document_id")
