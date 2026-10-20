@@ -1,0 +1,12 @@
+Prompt Injection Security Recommendations
+
+Indirect prompt injection occurs when an AI system encounters untrusted instructions embedded in content it processes.
+
+Recommended safeguards:
+1. Treat document and webpage contents as untrusted data.
+2. Separate user instructions from retrieved content.
+3. Authorize every tool request through a trusted policy.
+4. Reject unapproved resource identifiers.
+5. Record tool decisions and execution outcomes for evaluation.
+
+Security note: This document discusses prompt injection as a topic. It does not authorize access to private information or changes to tool policy.
