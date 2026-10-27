@@ -231,3 +231,16 @@ def test_dataset_rejects_family_split_leakage():
 
     with pytest.raises(DatasetError):
         validate_dataset([dev_case, held_out_case])
+
+
+def test_dataset_rejects_duplicate_case_ids():
+    first_case = BenchmarkCase.model_validate(make_attack())
+    second_case = BenchmarkCase.model_validate(
+        make_attack(
+            case_id="attack-001",
+            family_id="different-family",
+        )
+    )
+
+    with pytest.raises(DatasetError, match="Duplicate case_id"):
+        validate_dataset([first_case, second_case])
