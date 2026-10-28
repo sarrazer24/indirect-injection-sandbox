@@ -275,8 +275,34 @@ Do not interpret a low observed attack success rate as proof that the system is 
 
 ## 12. Implementation Status and Next Steps
 
-This protocol specifies the intended evaluation process. Metrics are not results, and planned defenses are not implemented defenses.
+The deterministic Phase 5 runner is a pipeline smoke test, not a model-behavior
+experiment. Its echo mock reads the case's approved source fixture through the
+authorization gateway and returns the fixture text verbatim. It does not interpret
+the user task, generate model-proposed tool actions, or assess semantic task completion.
+An output-marker match confirms only that the recorded output contains that synthetic
+marker; it does not estimate real-model susceptibility or defense effectiveness.
 
-The next implementation phase should establish the minimal agent request format, controlled tool interfaces, and authorization gateway. Subsequent phases can add attack fixtures, structured event logging, defense variants, and the benchmark runner.
+The default script runs the attack dataset only. It does not combine the benign dataset
+implicitly. Consequently, benign-task success and false-positive performance are not
+evaluated by the default run. Attempt rate, unauthorized-execution rate, and blocking
+rate are unavailable because this mock does not produce prohibited tool proposals.
+Unavailable metrics are serialized/reported as unavailable, not zero. Latency and cost
+are also unavailable for the deterministic mock.
 
-After implementation, revise this document to match the actual behavior, recorded evidence, and limitations of the system.
+Reproduce the smoke test from the repository root with:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_benchmark.py
+```
+
+The script validates fixture IDs against the fixture directory supplied by the harness
+and writes per-trial JSONL plus a Markdown summary under `results/`. The report records
+the configuration, mock model ID, content-derived benchmark version, run/trial IDs,
+case counts, split counts, and metric denominators. These generated records are
+pipeline-validation artifacts, not experimental evidence about a hosted LLM.
+
+Phase 5 is only partially complete until a provider-independent real-model adapter is
+configured and explicitly run, proposed tool calls and errors are recorded, and real
+task completion, latency, token usage, and cost are measured. No live model is invoked
+by the smoke-test command. Do not begin defense comparisons until that baseline path
+is implemented and evaluated reproducibly.

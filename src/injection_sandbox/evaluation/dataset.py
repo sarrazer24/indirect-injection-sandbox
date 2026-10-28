@@ -104,6 +104,22 @@ def validate_dataset(
         ):
             raise DatasetError(f"Case {case.case_id} references an unapproved web fixture ID")
 
+        for operation in case.allowed_operations:
+            if operation.tool == "read_document":
+                if approved_document_ids is not None:
+                    unapproved_ids = set(operation.resource_ids) - approved_document_ids
+                    if unapproved_ids:
+                        raise DatasetError(
+                            f"Case {case.case_id} operation references an unapproved document ID"
+                        )
+
+            elif operation.tool == "read_web_fixture" and approved_web_fixture_ids is not None:
+                unapproved_ids = set(operation.resource_ids) - approved_web_fixture_ids
+                if unapproved_ids:
+                    raise DatasetError(
+                        f"Case {case.case_id} operation references an unapproved web fixture ID"
+                    )
+
     for family_id, splits in family_splits.items():
         if len(splits) > 1:
             split_names = ", ".join(sorted(splits))
