@@ -135,14 +135,23 @@ class Qwen2_5_3BAdapter:
     @staticmethod
     def _decode_generated_ids(tokenizer: Any, generated: Any, prompt_length: int) -> str:
         """Slice only the generated token ids and decode them."""
-        if generated is None or not generated:
+        if generated is None:
+            raise ValueError("Model returned no output.")
+
+        if getattr(generated, "ndim", None) == 0:
+            raise ValueError("Model returned an empty generation batch.")
+
+        if len(generated) == 0:
             raise ValueError("Model returned no output.")
 
         batch = generated[0]
-        if not batch:
+        if len(batch) == 0:
             raise ValueError("Model returned an empty generation batch.")
 
         response_ids = batch[prompt_length:]
+        if len(response_ids) == 0:
+            raise ValueError("Model returned no generated tokens.")
+
         text = tokenizer.decode(response_ids, skip_special_tokens=True)
         if not text.strip():
             raise ValueError("Model returned empty generated content.")
